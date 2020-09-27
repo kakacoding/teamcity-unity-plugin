@@ -19,6 +19,7 @@ package jetbrains.buildServer.unity
 import com.intellij.openapi.diagnostic.Logger
 import com.vdurmont.semver4j.Semver
 import jetbrains.buildServer.util.PEReader.PEUtil
+import jetbrains.buildServer.util.StringUtil
 import java.io.File
 
 class WindowsUnityDetector : UnityDetectorBase() {
@@ -29,13 +30,44 @@ class WindowsUnityDetector : UnityDetectorBase() {
 
     override fun findInstallations() = sequence {
         getHintPaths().distinct().forEach { path ->
-            LOG.debug("Looking for Unity installation in $path")
+            LOG.info("Looking for Unity installation in $path")
 
             val executable = getEditorPath(path)
+            if (executable.exists()) LOG.info("$executable exist")
             if (!executable.exists()) return@forEach
 
-            val version = PEUtil.getProductVersion(executable) ?: return@forEach
-            yield(Semver("${version.p1}.${version.p2}.${version.p3}", Semver.SemverType.LOOSE) to path)
+//            val version = PEUtil.getProductVersion(executable) ?: return@forEach
+//            LOG.info("var: ${version.p1}.${version.p2}.${version.p3}")
+//            yield(Semver("${version.p1}.${version.p2}.${version.p3}", Semver.SemverType.LOOSE) to path)
+            val version = PEUtil.getProductVersion(executable)
+            if(version == null){
+                val dirs = path.absolutePath.split("\\")
+                if(dirs.isNotEmpty()) {
+                    val vers = dirs[dirs.size - 1].split(".")
+                    if(vers.size>=3) {
+                        var idx = 0
+                        for (s in vers[2]) {
+                            if (!s.isDigit()) break;
+                            idx++;
+                        }
+                        var v3=0
+                        if (idx > 0){
+                            v3=vers[2].substring(0, idx).toInt()
+                        }
+
+                        vers[2].length
+                        LOG.info("new var: ${vers[0]}.${vers[1]}.${v3}")
+                        yield(Semver("${vers[0]}.${vers[1]}.${v3}", Semver.SemverType.LOOSE) to path)
+                    }else{
+                        return@forEach
+                    }
+                }else {
+                    return@forEach
+                }
+            }else{
+                LOG.info("var: ${version.p1}.${version.p2}.${version.p3}.${version.p4}")
+                yield(Semver("${version.p1}.${version.p2}.${version.p3}", Semver.SemverType.LOOSE) to path)
+            }
         }
     }
 
