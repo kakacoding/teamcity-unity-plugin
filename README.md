@@ -6,6 +6,9 @@
 
 The plugin supports building Unity projects on TeamCity.
 
+## Fix
+在插件无法识别Unity.exe版本时，强制通过Unity路径来识别。例如：C:\Program Files\Unity\Hub\Editor\2019.3.0f6
+
 ## Features
 
 * Unity versions detection on build agents
