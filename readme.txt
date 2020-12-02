@@ -12,3 +12,7 @@ D:\teamcity-unity-plugin-master>.\gradlew.bat --init-script D:\BuildAgent\plugin
 
 替换.jar
 d:\Buildagent\plugins\teamcity-unity-agent\lib\plugin-unity-agent.jar
+
+
+ps:
+plugin-unity-agent.jar是编译好的文件
